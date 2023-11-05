@@ -24,7 +24,6 @@ env:
 jobs:
   backup:
     runs-on: ubuntu-latest
-    if: github.event.repository.owner.id == github.event.sender.id
     steps:
     - name: Greeting
       run: |
