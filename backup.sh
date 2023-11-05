@@ -1,3 +1,4 @@
+#!/bin/bash
 # Set the DATE variable to the current date from the runner VM, in the format YYYY-MM-DD.
 DATE=$(date +%F)
 
