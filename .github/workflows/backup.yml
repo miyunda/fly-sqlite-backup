@@ -1,1 +1,80 @@
+name: Fly Sqlite Backup to S3
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  schedule:
+    - cron: '* 19 * * *'
 
+env:
+    APP_NAME: ${{ secrets.APP_NAME }}
+    AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+    AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+    AWS_S3_ENDPOINT: ${{ secrets.AWS_S3_ENDPOINT }}
+    AWS_S3_REGION: ${{ secrets.AWS_S3_REGION }}
+    BUCKET_NAME: ${{ secrets.BUCKET_NAME }}
+    FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+    RUNNER_TZ: Asia/Shanghai
+    REPO_TOKEN: ${{ secrets.REPO_TOKEN }} # https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#fine-grained-personal-access-tokens
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    if: github.event.repository.owner.id == github.event.sender.id
+    steps:
+    - name: Greeting
+      run: |
+        cd ${GITHUB_WORKSPACE}
+        if [[ -z "${{ secrets.APP_NAME }}" ]]; then
+          echo "Kindly provide an App name within Actions secrets."
+          exit 1
+        fi
+        if [[ -z "${{ secrets.FLY_API_TOKEN }}" ]]; then
+        echo "Please create an API token within Actions secrets to enable Fly access."
+        exit 1
+        fi
+        sudo timedatectl set-timezone "$RUNNER_TZ"
+        
+
+    - name: Checkout
+      uses: actions/checkout@main
+
+    - name: Install Flyctl
+      run: |
+        curl -L https://fly.io/install.sh | sh
+        echo "FLYCTL_INSTALL=$HOME/.fly" >> $GITHUB_ENV
+        echo "$HOME/.fly/bin" >> $GITHUB_PATH
+     
+    - name: SSH into my Fly VM  
+      run: |
+        chmod +x $GITHUB_WORKSPACE/backup.sh
+        ./backup.sh
+
+    - name: Upload backup data to S3
+      run: |  
+        aws s3 cp *.gz $BUCKET_NAME \
+          --endpoint-url $AWS_S3_ENDPOINT \
+          --region $AWS_S3_REGION \
+          > result.txt
+        sed -i "s|$BUCKET_NAME|secreteBucket/|g" result.txt
+        rm -f *.gz
+
+    - name: Upload results
+      uses: actions/upload-artifact@v3
+      with:
+        name: backup-result
+        path: result.txt
+        if-no-files-found: error
+
+    - name: Clean up Actions
+      if: env.REPO_TOKEN
+      uses: Mattraks/delete-workflow-runs@main
+      with:
+        token: ${{ secrets.REPO_TOKEN }}
+        repository: ${{ github.repository }}
+        keep_minimum_runs: 30
+        retain_days: 30
