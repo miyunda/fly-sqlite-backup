@@ -9,7 +9,7 @@ INSTALL_SQLITE="apt-get update && apt-get install sqlite3 -y"
 BACKUP_DB="sqlite3 /data/db.sqlite3 '.backup /data/db.bak'"
 
 # Compress the backup file and append the current date to the filename.
-CREATE_ARCHIVE="gzip -cv /data/db.bak > /opt/db.bak.$DATE.gz"
+CREATE_ARCHIVE="gzip -cv /data/db.bak > /opt/$DATE.db.bak.gz"
 
 # Delete any archived files that are older than 30 days.
 CLEAN_UP="find /opt -type f -name 'db.bak.*.gz' -mtime +30 -exec rm '{}' +"
@@ -18,4 +18,4 @@ CLEAN_UP="find /opt -type f -name 'db.bak.*.gz' -mtime +30 -exec rm '{}' +"
 fly ssh console -a $APP_NAME -C 'bash -c "'"$INSTALL_SQLITE"' && '"$BACKUP_DB"' && '"$CREATE_ARCHIVE"' && '"$CLEAN_UP"'"'
 
 # Copy the created archive file to the runner machine.
-fly sftp -a $APP_NAME get "/opt/db.bak.$DATE.gz"
+fly sftp -a $APP_NAME get "/opt/$DATE.db.bak.gz"
