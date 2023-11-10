@@ -2,7 +2,7 @@
 
 ![Status badge](https://github.com/miyunda/fly-sqlite-backup-s3/actions/workflows/backup.yml/badge.svg)
 
-English | [中文]([README_CN.md](https://miyunda.com/flysqlitebackup/#b-%E6%AD%A3%E6%96%87%E5%BC%80%E5%A7%8B))
+English | [中文](https://miyunda.com/flysqlitebackup/#b-%E6%AD%A3%E6%96%87%E5%BC%80%E5%A7%8B)
 
 ## Getting Started
 
