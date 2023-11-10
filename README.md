@@ -1,6 +1,6 @@
 # Backup your SQLite database on Fly.io to an S3 bucket.
 
-![Status badge](https://github.com/miyunda/fly-sqlite-backup-s3/actions/workflows/build-openwrt.yml/badge.svg)
+![Status badge](https://github.com/miyunda/fly-sqlite-backup-s3/actions/workflows/backup.yml/badge.svg)
 
 English | [中文]([README_CN.md](https://miyunda.com/flysqlitebackup/#b-%E6%AD%A3%E6%96%87%E5%BC%80%E5%A7%8B))
 
